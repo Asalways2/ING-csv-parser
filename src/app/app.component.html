@@ -1,1 +1,24 @@
+<main style="padding: 10px;">
+
+<mat-card style="background-color: blueviolet; align-self: center;">
+    <mat-card-header ><h2>parser</h2></mat-card-header>
+    <mat-card-subtitle>lets crunch our numbers</mat-card-subtitle>
+    <mat-card-content><input #fileInput type="file" name="" id="" (change)="getINGfile($event)">
+    </mat-card-content>
+
+</mat-card>
+
+
+
+<mat-card style="background-color: rebeccapurple; align-self: center;">
+    <mat-card-header ><h2>the file</h2></mat-card-header>
+    <mat-card-subtitle></mat-card-subtitle>
+    <mat-card-content>
+        <li *ngFor="let row of rows; index as i;">{{row}}</li>
+    </mat-card-content>
+
+</mat-card>
+
+</main>
+
 <router-outlet></router-outlet>
