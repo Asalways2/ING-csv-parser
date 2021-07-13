@@ -1,5 +1,4 @@
-import { validateHorizontalPosition } from '@angular/cdk/overlay';
-import { Injectable, Input } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface INGmutation {
@@ -62,7 +61,7 @@ export class INGparserService {
 
   emptyIngMutation = (): INGmutation => ({
     omschrijving: '',
-    afBij: false,
+    afBij: true,
     rekening: '',
     tegenRekening: '',
     tag: '',
@@ -147,7 +146,7 @@ export class INGparserService {
   }
 
   //convert the raw 2d array to the INGmutation definition
-  csvToINGtype(rawMutations: string[][]): INGmutation[] {
+  csvToINGtype(rawMutations: string[][]) {
     rawMutations.forEach((mutation) => {
       this.mutationsList.push(this.emptyIngMutation());
     });
@@ -179,9 +178,13 @@ export class INGparserService {
             this.mutationsList[index - 1].code = field as unknown as Codes;
             break;
           case INGtypes.afBij:
-            if (field === 'Af') this.mutationsList[index - 1].afBij = false;
-            else if (field === 'Bij')
+            if (field === 'Af') {
+              this.mutationsList[index - 1].afBij = false;
+            } else if (field === 'Bij') {
               this.mutationsList[index - 1].afBij = true;
+              console.log(this.mutationsList[index - 1].afBij);
+            }
+
             break;
           case INGtypes.bedrag:
             this.mutationsList[index - 1].bedrag = +field.replace(',', '.');
@@ -201,7 +204,7 @@ export class INGparserService {
         }
       });
     });
-    this.INGmutations.next(this.mutationsList);
-    return this.mutationsList;
+
+    this.INGmutations.next([...this.mutationsList] as INGmutation[]);
   }
 }

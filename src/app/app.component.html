@@ -1,5 +1,18 @@
-<main style="padding: 10px">
-  <mat-card style="background-color: blueviolet; align-self: center">
+<main
+  style="
+    padding: 10px;
+    background-color: var(--background);
+    width: 100%;
+    height: 100%;
+  "
+>
+  <mat-card
+    style="
+      background-color: var(--header);
+      align-self: center;
+      margin-bottom: 10px;
+    "
+  >
     <mat-card-header><h2>parser</h2></mat-card-header>
     <mat-card-subtitle>lets crunch our numbers</mat-card-subtitle>
     <mat-card-content
@@ -13,15 +26,31 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card style="background-color: rebeccapurple; align-self: center">
-    <mat-card-header><h2>the file</h2></mat-card-header>
-    <mat-card-subtitle
-      >Found {{ this.amountOfEntrys }} mutations
-    </mat-card-subtitle>
-    <mat-card-content>
-      {{ this.rawFileString }}
-    </mat-card-content>
-  </mat-card>
+  <mat-grid-list cols="2" rowHeight="400px">
+    <mat-grid-tile colspan="1">
+      <mat-card
+        style="background-color: var(--subHeader); width: 100%; height: 100%"
+      >
+        <mat-card-header><h2>total info</h2></mat-card-header>
+        <mat-card-subtitle>total mony = {{ totalMonny }} </mat-card-subtitle>
+        <mat-card-content> </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile colspan="1">
+      <mat-card
+        style="background-color: var(--subHeader); width: 100%; height: 100%"
+      >
+        <mat-card-header><h2>Montly</h2></mat-card-header>
+        <mat-card-subtitle> </mat-card-subtitle>
+        <mat-card-content>
+          <mat-button-toggle class="button" (click)="getMonts()"
+            >get months</mat-button-toggle
+          >
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    <
+  </mat-grid-list>
 </main>
 
 <router-outlet></router-outlet>

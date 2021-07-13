@@ -1,4 +1,12 @@
 import { Component } from '@angular/core';
+import { INGmutation, INGparserService } from './services/ingparser.service';
+import { filter } from 'rxjs/operators';
+
+//https://www.ing.nl/media/266197_1216_tcm162-117728.pdf
+
+interface Year {
+  months?: Number[];
+}
 
 @Component({
   selector: 'app-root',
@@ -7,68 +15,62 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'ING-parser-excel';
-  public parsedfile: string[][] = [];
-  public amountOfEntrys: number = 0;
-  public rawFileString: string = '';
+  public mutations: INGmutation[] = [];
+  public totalMonny: number = 0;
+  public availableDates: Year[] = [];
+
+  constructor(private INGparser: INGparserService) {
+    INGparser.$INGmutations
+      .pipe(filter((mutations) => mutations.length !== 0))
+      .subscribe((mutations) => {
+        mutations.map((mutation) => {
+          if (mutation.afBij === false) {
+            this.totalMonny -= mutation.bedrag;
+          } else {
+            this.totalMonny += mutation.bedrag;
+          }
+          return;
+        });
+        this.mutations = mutations;
+      });
+  }
 
   async getINGfile(file: any) {
-    this.rawFileString = await this.readFile(file);
-    console.log(this.CSVStringToArray(this.rawFileString));
+    await this.INGparser.loadInFile(file);
   }
 
-  readFile(file: any): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      const tempfile = file.target.files[0];
-      reader.readAsText(tempfile);
-      reader.onload = (e) => {
-        resolve(reader.result as string);
-      };
-      reader.onerror = reject;
+  getMonts() {
+    let availableMontsinYear: number[][] = [];
+
+    let tempMonth: number;
+    let tempYear: number;
+    let tempYearold: number;
+    let YearIndex: number = 0;
+
+    this.mutations.forEach((mutation, index) => {
+      //for each mutation check the date and get the months
+      //first run cthe tempyearold === tempyear to detect change there
+      if (index === 0) {
+        tempMonth = mutation.datum.getMonth();
+        const tempYear = mutation.datum.getFullYear();
+        const tempYearold = tempYear;
+        console.log(tempYear);
+        availableMontsinYear.push([]);
+      } else {
+        if (tempYear !== tempYearold) {
+          YearIndex++;
+          availableMontsinYear.push([tempYear], []);
+        }
+
+        if (availableMontsinYear[YearIndex]?.includes(tempMonth)) {
+          //nothing
+        } else {
+          availableMontsinYear[YearIndex].push(tempMonth);
+        }
+      }
+
+      tempYearold = tempYear;
     });
-  }
-
-  // "inside of string"
-  // ; next entry
-  // space = next row
-
-  CSVStringToArray(string: String): string[][] {
-    let startOfString: Boolean = false;
-    let col = 0;
-    let row = 0;
-    let wordlen = 0;
-
-    let dataArray: string[][] = [];
-    let rowArray: string[] = [];
-
-    for (let len = 0; len <= string.length; len++) {
-      switch (string[len]) {
-        case '"': // start or end of string
-          startOfString = !startOfString; //toggle
-          if (startOfString === false) {
-            if (wordlen > 0) {
-              rowArray.push(string.substring(len + 1 - wordlen, len));
-            }
-            wordlen = 0;
-          }
-          break;
-        case ';': // next col
-          col++;
-          break;
-        case '\n': // if not in string then new row
-          if (startOfString) {
-            break;
-          }
-          row++;
-          dataArray.push(rowArray);
-          rowArray = [];
-          break;
-      }
-
-      if (startOfString) {
-        wordlen++;
-      }
-    }
-    return dataArray;
+    console.log(availableMontsinYear);
   }
 }
